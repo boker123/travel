@@ -13,20 +13,90 @@
         $(function () {
             var search = location.search;
             var cid = search.split("=")[1];
-            $.get("route/pageQuery",{cid:cid},function (pb) {
+            load(cid)
+        });
+
+        function load(cid,currentPage) {
+            $.get("route/pageQuery",{cid:cid,currentPage:currentPage},function (pb) {
                 $("#totalPage").html(pb.totalPage);
                 $("#totalCount").html(pb.totalCount);
                 var list = "";
-                // alert(pb.totalPage);
-                for(var i = 1; i <= pb.totalPage; i++) {
-                    // alert(i);
-                    // alert(pb.totalPage);
-                    var li = '<li><a href="#">'+i+'</a></li>';
+                var firstPage='<li onclick="load('+cid+',1)"><a href="javascript:void(0)">首页</a></li>';
+                var befornum = pb.currentPage-1;
+                var nextnum = pb.currentPage+1;
+                if (befornum <= 0) {
+                    befornum = 1;
+                }
+                if (nextnum >= pb.totalPage) {
+                    nextnum = pb.totalPage;
+                }
+                var prePage='<li class="threeword" onclick="load('+cid+','+befornum+')"><a href="javascript:void(0)">上一页</a></li>';
+                var nextPage='<li class="threeword" onclick="load('+cid+','+nextnum+')"><a href="javascript:void(0)">下一页</a></li>';
+                var lastPage='<li class="threeword" onclick="load('+cid+','+pb.totalPage+')"><a href="javascript:void(0);">末页</a></li>';
+                list += firstPage;
+                list += prePage;
+
+                var begin;
+                var end;
+
+                if(pb.totalPage < 10) {
+                    begin = 1;
+                    end = pb.totalPage;
+                } else {
+                    begin = pb.currentPage - 5;
+                    end = pb.currentPage + 4;
+                    if(begin < 1) {
+                        begin = 1;
+                        end = begin + 9;
+                    }
+                    if (end > pb.totalPage) {
+                        end = pb.totalPage;
+                        begin = end - 9;
+                    }
+                }
+
+                for (var i = begin; i <= end; i++) {
+                    if(pb.currentPage == i) {
+                        var li = '<li class="curPage" onclick="load('+cid+','+i+')"><a href="javascript:void(0)">'+i+'</a></li>';
+                    } else {
+                        // alert(i);
+                        // alert(pb.totalPage);
+                        var li = '<li onclick="load('+cid+','+i+')"><a href="javascript:void(0)">'+i+'</a></li>';
+                    }
+
                     list += li;
                 }
+
+                list += nextPage;
+                list += lastPage;
                 $("#pageNum").html(list);
+
+                var route_list = "";
+
+                for (var i=0; i< pb.list.length; i++) {
+                    var route = pb.list[i];
+                    var li = '<li>\n' +
+    '                            <div class="img"><img src="'+route.rimage+'" style="width: 299px;" alt=""></div>\n' +
+    '                            <div class="text1">\n' +
+    '                                <p>'+route.rname+'</p>\n' +
+    '                                <br/>\n' +
+    '                                <p>'+route.routeIntroduce+'</p>\n' +
+    '                            </div>\n' +
+    '                            <div class="price">\n' +
+    '                                <p class="price_num">\n' +
+    '                                    <span>&yen;</span>\n' +
+    '                                    <span>'+route.price+'</span>\n' +
+    '                                    <span>起</span>\n' +
+    '                                </p>\n' +
+    '                                <p><a href="route_detail.html">查看详情</a></p>\n' +
+    '                            </div>\n' +
+    '                        </li>';
+                    route_list += li;
+                }
+                $("#route").html(route_list);
+                window.scrollTo(0,0);
             })
-        })
+        }
     </script>
 </head>
 <body>
@@ -44,7 +114,7 @@
                         <span>商品信息</span>
                         <span class="jg">价格</span>
                     </div>
-                    <ul>
+                    <ul id="route">
                         <li>
                             <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
                             <div class="text1">
