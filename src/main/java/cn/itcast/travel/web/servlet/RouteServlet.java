@@ -24,8 +24,12 @@ public class RouteServlet extends BaseServlet {
         String currentPageStr = request.getParameter("currentPage");
         String pageSizeStr = request.getParameter("pageSize");
         String cidStr = request.getParameter("cid");
+        String rname = request.getParameter("rname");
+        if (rname != null)
+            rname = new String(rname.getBytes("iso-8859-1"), "utf-8");
+        System.out.println(rname);
         int cid = 0;
-        if(cidStr != null && cidStr.length() > 0) {
+        if(cidStr != null && cidStr.length() > 0 && !"null".equals(cidStr)) {
             cid = Integer.parseInt(cidStr);
         }
         int currentPage = 1;
@@ -37,7 +41,7 @@ public class RouteServlet extends BaseServlet {
             pageSize = Integer.parseInt(pageSizeStr);
         }
 
-        PageBean<Route> pb = routeService.pageQuery(cid, currentPage, pageSize);
+        PageBean<Route> pb = routeService.pageQuery(cid, currentPage, pageSize, rname);
         writeValue(pb, response);
     }
 

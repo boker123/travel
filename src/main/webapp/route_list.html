@@ -8,20 +8,26 @@
     <title>黑马旅游-搜索</title>
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" href="css/search.css">
+    <script src="js/getParameter.js"></script>
     <script src="js/jquery-3.3.1.js"></script>
     <script>
         $(function () {
-            var search = location.search;
-            var cid = search.split("=")[1];
-            load(cid)
+            // var search = location.search;
+            // var cid = search.split("=")[1];
+            var cid = getParameter("cid");
+            var rname = getParameter("rname");
+            if(rname) {
+                rname = window.decodeURIComponent(rname);
+            }
+            load(cid,null,rname);
         });
 
-        function load(cid,currentPage) {
-            $.get("route/pageQuery",{cid:cid,currentPage:currentPage},function (pb) {
+        function load(cid,currentPage,rname) {
+            $.get("route/pageQuery",{cid:cid,currentPage:currentPage,rname:rname},function (pb) {
                 $("#totalPage").html(pb.totalPage);
                 $("#totalCount").html(pb.totalCount);
                 var list = "";
-                var firstPage='<li onclick="load('+cid+',1)"><a href="javascript:void(0)">首页</a></li>';
+                var firstPage='<li onclick="load('+cid+',1,\''+rname+'\')"><a href="javascript:void(0)">首页</a></li>';
                 var befornum = pb.currentPage-1;
                 var nextnum = pb.currentPage+1;
                 if (befornum <= 0) {
@@ -30,9 +36,9 @@
                 if (nextnum >= pb.totalPage) {
                     nextnum = pb.totalPage;
                 }
-                var prePage='<li class="threeword" onclick="load('+cid+','+befornum+')"><a href="javascript:void(0)">上一页</a></li>';
-                var nextPage='<li class="threeword" onclick="load('+cid+','+nextnum+')"><a href="javascript:void(0)">下一页</a></li>';
-                var lastPage='<li class="threeword" onclick="load('+cid+','+pb.totalPage+')"><a href="javascript:void(0);">末页</a></li>';
+                var prePage='<li class="threeword" onclick="load('+cid+','+befornum+',\''+rname+'\')"><a href="javascript:void(0)">上一页</a></li>';
+                var nextPage='<li class="threeword" onclick="load('+cid+','+nextnum+',\''+rname+'\')"><a href="javascript:void(0)">下一页</a></li>';
+                var lastPage='<li class="threeword" onclick="load('+cid+','+pb.totalPage+',\''+rname+'\')"><a href="javascript:void(0);">末页</a></li>';
                 list += firstPage;
                 list += prePage;
 
@@ -57,11 +63,11 @@
 
                 for (var i = begin; i <= end; i++) {
                     if(pb.currentPage == i) {
-                        var li = '<li class="curPage" onclick="load('+cid+','+i+')"><a href="javascript:void(0)">'+i+'</a></li>';
+                        var li = '<li class="curPage" onclick="load('+cid+','+i+',\''+rname+'\')"><a href="javascript:void(0)">'+i+'</a></li>';
                     } else {
                         // alert(i);
                         // alert(pb.totalPage);
-                        var li = '<li onclick="load('+cid+','+i+')"><a href="javascript:void(0)">'+i+'</a></li>';
+                        var li = '<li onclick="load('+cid+','+i+',\''+rname+'\')"><a href="javascript:void(0)">'+i+'</a></li>';
                     }
 
                     list += li;
@@ -98,6 +104,7 @@
             })
         }
     </script>
+
 </head>
 <body>
 <!--引入头部-->
